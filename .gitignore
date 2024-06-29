@@ -1,0 +1,4 @@
+/target
+firmware/target
+firmware/src/version.rs
+*.DS_Store

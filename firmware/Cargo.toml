@@ -1,0 +1,85 @@
+[package]
+authors = ["Andres Vahter <andres@vahter.me>"]
+name = "rtictest"
+edition = "2021"
+version = "0.1.0"
+
+[lib]
+harness = false
+
+# needed for each integration test
+[[test]]
+name = "integration"
+harness = false
+
+[dependencies]
+cortex-m = { version = "0.7", features = ["critical-section-single-core"] }
+cortex-m-rt = "0.7"
+critical-section = "1.1"
+defmt = "0.3"
+defmt-rtt = "0.4"
+panic-probe = { version = "0.3", features = ["print-defmt"] }
+embedded-io-async = "0.6.1"
+embedded-hal-async = "1.0"
+# https://docs.embassy.dev/embassy-stm32/git/stm32g030k6/index.html
+embassy-stm32 = { git = "https://github.com/embassy-rs/embassy.git", rev = "26e660722cca9151e5a9331c328421145509ab20", features = [
+    "defmt",
+    "stm32g030k6",
+    "unstable-pac",
+    "exti",
+    "rt",
+] }
+rtic-monotonics = { version = "2.0.1", features = [
+    "stm32g030k6",
+    "stm32_tim3",
+] }
+rtic-sync = "1.3"
+rtic = { version = "2.1", features = ["thumbv6-backend"] }
+
+[dev-dependencies]
+defmt-test = "0.3"
+
+# this lets you use `cargo fix`!
+[[bin]]
+name = "rtictest"
+path = "src/main.rs"
+test = false
+bench = false
+
+# cargo build/run
+[profile.dev]
+codegen-units = 1
+debug = 2
+debug-assertions = true # <-
+incremental = false
+opt-level = 's'         # <-
+overflow-checks = true  # <-
+
+# cargo test
+[profile.test]
+codegen-units = 1
+debug = 2
+debug-assertions = true # <-
+incremental = false
+opt-level = 3           # <-
+overflow-checks = true  # <-
+
+# cargo build/run --release
+[profile.release]
+codegen-units = 1
+debug = 2
+debug-assertions = false # <-
+incremental = false
+lto = 'fat'
+opt-level = 's'          # <-
+overflow-checks = false  # <-
+
+# cargo test --release
+[profile.bench]
+codegen-units = 1
+debug = 2
+debug-assertions = false # <-
+incremental = false
+lto = 'fat'
+opt-level = 3            # <-
+overflow-checks = false  # <-
